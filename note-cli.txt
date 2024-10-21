@@ -1,0 +1,32 @@
+nats stream info EVENTS
+nats stream view EVENTS
+
+list comsumer with event 
+nats consumer ls EVENTS
+-> list consumer name -> worker
+-> use command check message in consumer : nats consumer info EVENTS worker
+
+nats stream rm EVENTS
+
+nats remove consumer processor 
+nats consumer rm EVENTS  events-processor
+nats consumer rm worker
+
+
+
+docs cheat sheet: https://cheatrepo.com/sheet/Natsio-86fbc0
+
+limit 
+--> nats.MaxAckPending(20)
+Without MaxAckPending(20): The server will keep delivering messages even 
+if the consumer is slow to acknowledge them. This can lead to a large number of in-flight unacknowledged messages.
+
+--> with MaxAckPending(20) default 65,536
+The server will stop delivering new messages when the consumer reaches 20 unacknowledged messages, effectively applying backpressure 
+until the consumer processes and acknowledges some of the messages.
+
+Ack Wait: 30s
+If a message is not acknowledged within 30 seconds, 
+it becomes eligible for redelivery. 
+This is the time the consumer has to process and acknowledge the message 
+before JetStream considers it unacknowledged and potentially redelivers it.

@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  nats-streaming:
+    image: nats-streaming:latest
+    container_name: nats-streaming-server
+    ports:
+      - "4222:4222"  # NATS client connection port
+      - "8222:8222"  # NATS monitoring port
+      - "6222:6222"  # NATS cluster port
+    volumes:
+      - ./data:/data # must same with file jetstream config
+      - ./jetstream.conf:/etc/nats/jetstream.conf  # Mount the configuration file
+    command: [ # add flag 
+      "-js",  # Enable JetStream
+       "-c", "/etc/nats/jetstream.conf"
+    ]
