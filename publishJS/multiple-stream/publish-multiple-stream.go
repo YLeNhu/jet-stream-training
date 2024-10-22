@@ -2,11 +2,12 @@ package multiple_stream
 
 import (
 	"fmt"
-	"github.com/nats-io/nats.go"
 	"go-streaming/util"
 	"log"
 	"reflect"
 	"sync"
+
+	"github.com/nats-io/nats.go"
 )
 
 func PublishMultipleStream() {
@@ -77,7 +78,7 @@ func processMetric(metric *util.Metrics, country util.Country, js *nats.JetStrea
 }
 
 func emitMessage(js *nats.JetStreamContext, subject string, message string) {
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 6; i++ {
 		_, err := (*js).Publish(subject, []byte(fmt.Sprintf("%s-index-%d", message, i)))
 		if err != nil {
 			log.Printf("Error publishing message  %v", err)
