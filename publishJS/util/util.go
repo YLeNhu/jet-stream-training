@@ -63,3 +63,18 @@ type LargeMessage struct {
 	Name    string `json:"name"`
 	Payload []byte `json:"payload"` // This is where we store a large byte array
 }
+
+type Metrics struct {
+	CPU     string
+	Memory  string
+	Network string
+}
+
+type Country string
+
+const (
+	Singapore Country = "SG"
+	USA       Country = "US"
+	Germany   Country = "DE"
+	// Add more countries as needed
+)

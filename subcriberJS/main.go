@@ -1,11 +1,12 @@
 package main
 
-import limitedbasedstream "sub/limited-based-stream"
+import multiple_stream "sub/multiple-stream"
 
 func main() {
 	// nats.Subcriber()
 	// natsstreaming.JsSubcriber()
 	// limitedbasedstream.JsSubcriberLimit()
-	limitedbasedstream.MaxAckPendingSubcriber()
+	//limitedbasedstream.MaxAckPendingSubcriber()
 	// pullconsumer.JsPullSubcriber()
+	multiple_stream.SubcriberMultipleStream()
 }

@@ -1,11 +1,12 @@
 package main
 
-import limitedbasedstream "go-streaming/limited-based-stream"
+import multiple_stream "go-streaming/multiple-stream"
 
 func main() {
 	// nats.PublisherNat()
 	// natsstreaming.JsPublisher()
-	limitedbasedstream.JsPublisherLimit()
+	//limitedbasedstream.JsPublisherLimit()
 	// retentionpolicy.RetentionPolicy()
 	// pullconsumer.JsPullPublisher()
+	multiple_stream.PublishMultipleStream()
 }

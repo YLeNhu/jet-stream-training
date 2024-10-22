@@ -55,18 +55,8 @@ func MaxAckPendingSubcriber() {
 
 			fmt.Printf("total message: %d\n", count)
 
-			checkPendingAcks(js, "EVENTS", "worker")
+			util.CheckPendingAcks(js, "EVENTS", "worker")
 		}
 	}
 
-}
-
-func checkPendingAcks(js nats.JetStreamContext, streamName string, consumerName string) {
-	consumerInfo, err := js.ConsumerInfo(streamName, consumerName)
-	if err != nil {
-		log.Printf("Error fetching consumer info: %v", err)
-		return
-	}
-
-	fmt.Printf("Pending Acks: %d / Max Pending Acks: %d\n", consumerInfo.NumAckPending, consumerInfo.Config.MaxAckPending)
 }

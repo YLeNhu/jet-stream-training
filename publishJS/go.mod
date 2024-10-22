@@ -1,6 +1,8 @@
 module go-streaming
 
-go 1.20
+go 1.22.0
+
+toolchain go1.22.8
 
 require (
 	github.com/klauspost/compress v1.17.2 // indirect

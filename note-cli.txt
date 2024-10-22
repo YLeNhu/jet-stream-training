@@ -12,7 +12,8 @@ nats remove consumer processor
 nats consumer rm EVENTS  events-processor
 nats consumer rm worker
 
-
+nats stream info  METRICS_WORLDWIDE
+nats consumer info METRICS_WORLDWIDE metrics_subscriber
 
 docs cheat sheet: https://cheatrepo.com/sheet/Natsio-86fbc0
 
@@ -30,3 +31,10 @@ If a message is not acknowledged within 30 seconds,
 it becomes eligible for redelivery. 
 This is the time the consumer has to process and acknowledge the message 
 before JetStream considers it unacknowledged and potentially redelivers it.
+
+
+nats stream info METRICS_WORLDWIDE
+nats consumer ls METRICS_WORLDWIDE
+nats consumer info METRICS_WORLDWIDE metrics_subscriber
+nats consumer rm  METRICS_WORLDWIDE metrics_subscriber
+nats stream rm METRICS_WORLDWIDE
