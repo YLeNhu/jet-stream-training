@@ -78,7 +78,7 @@ func processMetric(metric *util.Metrics, country util.Country, js *nats.JetStrea
 }
 
 func emitMessage(js *nats.JetStreamContext, subject string, message string) {
-	for i := 0; i < 6; i++ {
+	for i := 0; i < 2; i++ {
 		_, err := (*js).Publish(subject, []byte(fmt.Sprintf("%s-index-%d", message, i)))
 		if err != nil {
 			log.Printf("Error publishing message  %v", err)

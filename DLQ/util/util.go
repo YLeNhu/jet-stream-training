@@ -38,28 +38,3 @@ func CheckPendingAcks(js nats.JetStreamContext, streamName string, consumerName 
 	fmt.Printf("Total Messages Delivered: %d\n", consumerInfo.Delivered.Stream)
 	fmt.Printf("Messages Redelivered: %d\n", consumerInfo.NumRedelivered)
 }
-
-func CheckInfoStreamExist(js nats.JetStreamContext, streamName string) bool {
-	_, err := js.StreamInfo(streamName)
-	return err == nil
-}
-
-func CreateStreamDeadLetterQueue(js nats.JetStreamContext) {
-	streamName := "METRICS_DEAD_LETTER_QUEUE"
-
-	if CheckInfoStreamExist(js, streamName) {
-		log.Println("Stream already exists:", streamName)
-	} else {
-		config := nats.StreamConfig{
-			Name:      streamName,
-			Subjects:  []string{"dlq.>"},
-			Retention: nats.WorkQueuePolicy, // Retain until acknowledged
-			Storage:   nats.FileStorage,
-		}
-
-		CreateStream(js, config)
-
-		fmt.Println("Create Stream Dead Letter Queue")
-	}
-
-}

@@ -40,3 +40,6 @@ nats consumer rm  METRICS_WORLDWIDE metrics_subscriber
 nats stream rm METRICS_WORLDWIDE
 nats consumer rm metrics_subscriber
 nats s ls
+
+
+nats stream info METRICS_DEAD_LETTER_QUEUE

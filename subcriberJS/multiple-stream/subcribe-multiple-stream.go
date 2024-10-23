@@ -25,15 +25,20 @@ func SubcriberMultipleStream() {
 	// Create JetStream Context
 	js, err := nc.JetStream()
 
+	// create dead letter queue
+	util.CreateStreamDeadLetterQueue(js)
+
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	//  AckNonePolicy: delivery done and auto ack
+	// AckExplicitPolicy: manual ack
 	// Define consumer configuration
 	consumerConfig := &nats.ConsumerConfig{
 		Durable:       "metrics_subscriber",   // Durable name of the consumer
 		AckPolicy:     nats.AckExplicitPolicy, // Explicit acknowledgment required
-		AckWait:       10 * time.Second,       // Wait 10 seconds for an ack before retry
+		AckWait:       3 * time.Second,        // Wait 10 seconds for an ack before retry
 		MaxAckPending: 10,                     // Maximum number of unacknowledged messages
 		MaxDeliver:    3,                      // Retry each message 3 times
 		DeliverPolicy: nats.DeliverAllPolicy,  // Deliver all messages from the start
@@ -75,7 +80,11 @@ func SubcriberMultipleStream() {
 			}
 
 			for _, msg := range msgs {
-				processMessage(js, msg, fanInChannel)
+				err := processMessage(js, msg, fanInChannel)
+				fmt.Printf("error ne %v\n", err)
+				if err != nil {
+					sendToDLQ(js, msg)
+				}
 				// Parse the message subject to extract metricType and country
 				// parts := strings.Split(msg.Subject, ".")
 				// if len(parts) < 3 {
@@ -145,19 +154,27 @@ func SubcriberMultipleStream() {
 	select {}
 }
 
-func processMessage(js nats.JetStreamContext, msg *nats.Msg, fanInChannel chan MetricMessage) error {
+func processMessage(js nats.JetStreamContext, msg *nats.Msg, fanInChannel chan MetricMessage) (err error) {
 	defer func() {
 		// Recover from panic inside message processing
 		if r := recover(); r != nil {
-			log.Printf("Recovered from panic in processMessage: %v", r)
+			fmt.Printf("recover bao ne %v\n", r)
+			err = fmt.Errorf("panic occurred: %v", r) // Set the error to return to indicate the panic
 			// Negative Acknowledge the message to retry later
+			errNak := msg.Nak()
+			if errNak != nil {
+				err = fmt.Errorf("nak error ")
+			}
 		}
 	}()
 	// Simulate panic for specific message content
 	parts := strings.Split(msg.Subject, ".")
 	if len(parts) < 3 {
 		log.Printf("Invalid subject format: %s", msg.Subject)
-		msg.Nak()
+		err := msg.Nak()
+		if err != nil {
+			return fmt.Errorf("message nak error ")
+		}
 		return fmt.Errorf("invalid subject format: %s", msg.Subject)
 	}
 
@@ -183,7 +200,7 @@ func processMessage(js nats.JetStreamContext, msg *nats.Msg, fanInChannel chan M
 	}
 
 	// Forcing a panic when index % 5 == 0 to simulate an unexpected crash
-	if index == 5 {
+	if index%2 != 0 {
 		panic(fmt.Sprintf("Simulated crash: index %d caused a panic", index))
 	}
 
@@ -194,6 +211,22 @@ func processMessage(js nats.JetStreamContext, msg *nats.Msg, fanInChannel chan M
 		}
 	}
 
-	util.CheckPendingAcks(js, "METRICS_WORLDWIDE", "metrics_subscriber")
+	//util.CheckPendingAcks(js, "METRICS_WORLDWIDE", "metrics_subscriber")
 	return nil
+}
+
+func sendToDLQ(js nats.JetStreamContext, msg *nats.Msg) {
+	fmt.Println("send dead letter queue")
+	dlqSubject := "dlq.metrics" // Subject for the DLQ
+
+	// Publish the failed message to the DLQ stream
+	_, err := js.Publish(dlqSubject, msg.Data)
+	if err != nil {
+		log.Printf("Failed to publish message to DLQ: %v", err)
+	}
+
+	// Terminate the original message so it won't be retried
+	if err := msg.Term(); err != nil {
+		log.Printf("Failed to terminate message: %v", err)
+	}
 }
