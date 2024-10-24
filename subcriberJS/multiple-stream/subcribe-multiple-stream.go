@@ -155,6 +155,7 @@ func SubcriberMultipleStream() {
 }
 
 func processMessage(js nats.JetStreamContext, msg *nats.Msg, fanInChannel chan MetricMessage) (err error) {
+	time.Sleep(time.Second * 2)
 	defer func() {
 		// Recover from panic inside message processing
 		if r := recover(); r != nil {

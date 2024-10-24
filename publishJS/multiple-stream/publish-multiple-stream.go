@@ -35,8 +35,12 @@ func PublishMultipleStream() {
 		util.Singapore: {
 			{CPU: "CPU usage: 45%", Memory: "Memory usage: 45%", Network: "Network usage: 300mbps"},
 		},
-		util.USA:     {},
-		util.Germany: {},
+		util.USA: {
+			// {CPU: "CPU usage: 50%", Memory: "Memory usage: 45%", Network: "Network usage: 300mbps"},
+		},
+		util.Germany: {
+			// {CPU: "CPU usage: 55%", Memory: "Memory usage: 45%", Network: "Network usage: 300mbps"},
+		},
 	}
 
 	waitGroup.Add(1)
@@ -87,5 +91,4 @@ func emitMessage(js *nats.JetStreamContext, subject string, message string) {
 		}
 	}
 
-	return
 }
